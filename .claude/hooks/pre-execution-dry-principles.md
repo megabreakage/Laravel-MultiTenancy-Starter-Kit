@@ -1,5 +1,7 @@
 # Pre-Execution DRY Principles — Laravel API Starter Kit
 
+> **Companion hook:** `.claude/hooks/database-transaction-handling.md` defines the kit's single transaction boundary (`AsAction`). Read it before writing any write path.
+
 ## Purpose
 
 Before writing **any** new code in this project, the agent **MUST** verify that an equivalent implementation does not already exist that can be reused via **dependency injection**. The starter kit is built around tight, opinionated abstractions (`BaseModel`, `BaseRepository`, `BaseData`, `BaseApiController`, `BaseApiResource`, the `AsAction` trait); duplicating their behavior in concrete classes silently breaks the kit's guarantees (audit trail, tenant scoping, transaction wrapping, idempotency, response envelopes).
@@ -369,7 +371,7 @@ If you find yourself:
 ## Verification Steps Before Marking a Task Complete
 
 1. ✅ Run `rg -n "Model::(create|where|find|paginate|all|get|query)\(" app/Http app/Actions app/Services` — must return **zero** results.
-2. ✅ Run `rg -n "DB::transaction" app/Http app/Services` — must return **zero** results (transactions only inside Actions via `AsAction`).
+2. ✅ Run `rg -n "DB::transaction" app/Http app/Repositories app/Listeners app/Jobs` — must return **zero** results. Transactions are opened **only** by `AsAction` (inside `app/Actions/Concerns/AsAction.php`) and, when multiple actions must commit atomically together, by methods in `app/Services/*` (each such call must carry a comment naming the actions whose atomicity is being guaranteed). See `.claude/hooks/database-transaction-handling.md`.
 3. ✅ Run `rg -n "response\(\)->json\(" app/Http/Controllers` — must return **zero** results (use `RespondsWithJson`).
 4. ✅ Run `rg -n "abort\(" app/Http app/Actions app/Services app/Repositories` — must return **zero** results (use `ApiException` subclasses).
 5. ✅ Run `./vendor/bin/pest --filter=LayerBoundariesTest` — must pass.
