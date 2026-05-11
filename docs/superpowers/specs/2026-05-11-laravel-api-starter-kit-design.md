@@ -33,7 +33,12 @@ The kit ships **opinionated base classes** that encode the engineering conventio
 
 ### 1.2 DRY enforcement
 
-The kit ships `.claude/hooks/pre-execution-dry-principles.md` — a project-specific pre-execution checklist that the Claude agent (and human contributors) must follow before writing any new code. It enumerates the kit's architectural invariants (`BaseModel`, `BaseRepository`, `AsAction`, `BaseData`, `BaseApiController`, `BaseApiResource`, event/listener pipeline, kit middleware) as single sources of truth, lists the `rg` commands that prove no duplication has been introduced, and is enforced in CI by `LayerBoundariesTest` plus a small set of zero-match invariants (no direct `Model::` access outside repositories, no `DB::transaction` outside `AsAction`, no `response()->json` in controllers, no `abort()` in business code).
+The kit ships two enforcement hooks in `.claude/hooks/`:
+
+- **`pre-execution-dry-principles.md`** — pre-code-generation checklist enumerating the kit's architectural invariants (`BaseModel`, `BaseRepository`, `AsAction`, `BaseData`, `BaseApiController`, `BaseApiResource`, event/listener pipeline, kit middleware) as single sources of truth, with `rg` commands that prove no duplication has been introduced.
+- **`database-transaction-handling.md`** — defines `App\Actions\Concerns\AsAction` as the **single transaction site** in the kit. Controllers, repositories, listeners, and jobs **never** call `DB::transaction(...)`. Side-effects (mail, search, cache flush, audit post-processing) are triggered by domain events whose listeners implement `ShouldHandleEventsAfterCommit` — they never fire on a rolled-back transaction. The only exception is `App\Services\*`, which may open a transaction to make multiple actions commit atomically together (Laravel nests these as savepoints).
+
+Both hooks are enforced in CI by `LayerBoundariesTest` plus zero-match invariants: no direct `Model::` access outside `app/Repositories/`, no `DB::transaction(` outside `AsAction` + `app/Services/`, no `DB::beginTransaction|commit|rollBack` anywhere, no `response()->json(` in controllers, no `abort(` in business code.
 
 ### 1.3 Out of scope
 
@@ -330,7 +335,14 @@ Concrete repositories override only `model()` and the four `allowed*` methods. C
 
 ### 4.4 `App\Actions\Concerns\AsAction` trait
 
-Standardizes the action contract. Every action exposes `execute(Data $dto): Model` and the trait wraps the call in `DB::transaction(...)` + structured logging + `actingUserId` resolution (`auth()->id()` → queue-payload value → system-user fallback).
+Standardizes the action contract and is the **single, kit-wide transaction site**. Every action exposes `execute(Data $dto): Model`; concrete actions implement `protected handle(Data $dto): Model`. The trait:
+
+1. Resolves `actingUserId` (`auth()->id()` → queue-payload value → system-user fallback).
+2. Logs `starting` **outside** the transaction.
+3. Wraps `handle(...)` in `DB::transaction(...)` — Laravel auto-rolls back on any thrown exception.
+4. Logs `completed` **outside** the transaction.
+
+Concrete `handle()` methods are pure write paths: repository calls + `event(new DomainEvent(...))`. Listeners that produce side-effects (mail, search reindex, cache flush, audit post-processing, webhooks) implement `ShouldHandleEventsAfterCommit` so they never fire on a rolled-back transaction. Authorization, validation, reads, logging, and external I/O happen **outside** `handle()`. See `.claude/hooks/database-transaction-handling.md` for the full rule set.
 
 ### 4.5 `App\Data\BaseData` (extends `Spatie\LaravelData\Data`)
 
