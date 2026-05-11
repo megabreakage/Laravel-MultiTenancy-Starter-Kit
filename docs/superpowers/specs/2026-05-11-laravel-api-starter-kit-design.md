@@ -31,7 +31,11 @@ The kit ships **opinionated base classes** that encode the engineering conventio
 | Test runtime | **MySQL** matching production, executed via **Paratest** (parallel + sequential) |
 | Coverage gate | 80% line coverage on `app/` |
 
-### 1.2 Out of scope
+### 1.2 DRY enforcement
+
+The kit ships `.claude/hooks/pre-execution-dry-principles.md` — a project-specific pre-execution checklist that the Claude agent (and human contributors) must follow before writing any new code. It enumerates the kit's architectural invariants (`BaseModel`, `BaseRepository`, `AsAction`, `BaseData`, `BaseApiController`, `BaseApiResource`, event/listener pipeline, kit middleware) as single sources of truth, lists the `rg` commands that prove no duplication has been introduced, and is enforced in CI by `LayerBoundariesTest` plus a small set of zero-match invariants (no direct `Model::` access outside repositories, no `DB::transaction` outside `AsAction`, no `response()->json` in controllers, no `abort()` in business code).
+
+### 1.3 Out of scope
 
 To prevent scope creep, the kit explicitly does NOT include: billing/Stripe, frontend or admin panels, SSO/SAML/social login, analytics warehousing, file upload endpoints, notification channels beyond email.
 
