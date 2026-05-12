@@ -1,0 +1,12 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "declare_strict_types": true,
+        "strict_param": true,
+        "concat_space": { "spacing": "one" },
+        "ordered_imports": { "sort_algorithm": "alpha" },
+        "no_unused_imports": true,
+        "single_quote": true,
+        "native_function_casing": true
+    }
+}
