@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Symfony\Component\Finder\Finder;
 
-it('DB::transaction lives only in AsAction and Services', function () {
-    $finder = (new Finder())
+it('DB::transaction lives only in AsAction and Services', function (): void {
+    $finder = new Finder()
         ->in(app_path())
         ->files()
         ->name('*.php')
@@ -24,8 +24,8 @@ it('DB::transaction lives only in AsAction and Services', function () {
     );
 });
 
-it('no manual transaction management anywhere in app', function () {
-    $finder = (new Finder())
+it('no manual transaction management anywhere in app', function (): void {
+    $finder = new Finder()
         ->in(app_path())
         ->files()
         ->name('*.php');
@@ -42,8 +42,8 @@ it('no manual transaction management anywhere in app', function () {
     );
 });
 
-it('controllers do not call response()->json directly', function () {
-    $finder = (new Finder())
+it('controllers do not call response()->json directly', function (): void {
+    $finder = new Finder()
         ->in(app_path('Http/Controllers'))
         ->files()
         ->name('*.php');

@@ -22,15 +22,16 @@
         "predis/predis": "^2.0"
     },
     "require-dev": {
-        "pestphp/pest": "^4.0",
-        "pestphp/pest-plugin-laravel": "^4.1",
-        "pestphp/pest-plugin-arch": "^4.0",
         "brianium/paratest": "^7.0",
+        "driftingly/rector-laravel": "^2.3",
+        "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",
-        "rector/rector": "^2.0",
         "laravel/pint": "^1.0",
         "mockery/mockery": "^1.6",
-        "fakerphp/faker": "^1.23",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.1",
+        "rector/rector": "^2.0",
         "roave/security-advisories": "dev-latest"
     },
     "autoload": {

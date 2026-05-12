@@ -27,4 +27,4 @@ arch('central models declare strict types')
 // is prohibited (enforced by content-scanning in tests/Architecture/InvariantsTest.php).
 arch('controllers do not directly use DB facade')
     ->expect('App\Http\Controllers')
-    ->not->toUse('Illuminate\Support\Facades\DB');
+    ->not->toUse(\Illuminate\Support\Facades\DB::class);
