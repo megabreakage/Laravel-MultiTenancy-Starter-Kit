@@ -3,5 +3,5 @@ parameters:
 		-
 			message: '#^Comparison operation "\>\=" between int\<80500, 80599\> and 80500 is always true\.$#'
 			identifier: greaterOrEqual.alwaysTrue
-			count: 2
+			count: 3
 			path: config/database.php
