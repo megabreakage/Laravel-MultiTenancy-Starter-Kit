@@ -43,6 +43,7 @@ jobs:
         env: { MEILI_NO_ANALYTICS: 'true' }
         ports: ['7700:7700']
     env:
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
       DB_CENTRAL_HOST: 127.0.0.1
       DB_TENANT_HOST: 127.0.0.1
       REDIS_HOST: 127.0.0.1
@@ -52,6 +53,13 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with: { php-version: '8.5', tools: composer:v2 }
       - run: composer install --no-interaction --prefer-dist
+      - name: Create paratest worker databases
+        run: |
+          for i in 1 2 3 4; do
+            mysql -h 127.0.0.1 -u api_kit -ptestsecret -e \
+              "CREATE DATABASE IF NOT EXISTS api_kit_test_central_w${i} \
+               CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          done
       - run: composer test:full
 
   security:

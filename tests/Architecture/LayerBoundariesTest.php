@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Support\Facades\DB;
 
 // Controllers may not import repositories directly — must go through actions/services
 arch('controllers do not depend on repositories directly')
@@ -27,4 +28,4 @@ arch('central models declare strict types')
 // is prohibited (enforced by content-scanning in tests/Architecture/InvariantsTest.php).
 arch('controllers do not directly use DB facade')
     ->expect('App\Http\Controllers')
-    ->not->toUse(\Illuminate\Support\Facades\DB::class);
+    ->not->toUse(DB::class);
