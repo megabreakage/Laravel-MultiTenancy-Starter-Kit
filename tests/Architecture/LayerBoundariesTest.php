@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Support\Facades\DB;
 
 // Controllers may not import repositories directly — must go through actions/services
 arch('controllers do not depend on repositories directly')
@@ -26,8 +27,8 @@ arch('central models declare strict types')
 // (Actions and Services are the only permitted transaction sites)
 arch('controllers do not directly use DB facade')
     ->expect('App\Http\Controllers')
-    ->not->toUse('Illuminate\Support\Facades\DB');
+    ->not->toUse(DB::class);
 
 arch('repositories do not directly use DB facade')
     ->expect('App\Repositories')
-    ->not->toUse('Illuminate\Support\Facades\DB');
+    ->not->toUse(DB::class);
