@@ -2,15 +2,13 @@
 FROM composer:2 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-req=ext-pcntl --ignore-platform-req=ext-redis --ignore-platform-req=ext-intl
 
 FROM php:8.5-fpm-alpine AS runtime
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-        icu-dev oniguruma-dev libzip-dev zlib-dev libpng-dev \
+        oniguruma-dev libzip-dev zlib-dev \
  && apk add --no-cache mysql-client bash \
- && docker-php-ext-install pdo_mysql opcache intl bcmath zip gd \
- && pecl install redis \
- && docker-php-ext-enable redis \
+ && docker-php-ext-install pdo_mysql opcache bcmath zip pcntl \
  && apk del .build-deps
 
 WORKDIR /var/www/html
