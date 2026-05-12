@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-use Illuminate\Support\Facades\DB;
 
 // Controllers may not import repositories directly — must go through actions/services
 arch('controllers do not depend on repositories directly')
@@ -23,12 +22,9 @@ arch('central models declare strict types')
     ->expect('App\Models\Central')
     ->toUseStrictTypes();
 
-// AsAction trait owns DB transactions; controllers and repositories must not import the DB facade
-// (Actions and Services are the only permitted transaction sites)
+// AsAction trait owns DB transactions; controllers must not import the DB facade at all.
+// Repositories may use DB::raw(), DB::table(), etc. for complex queries — only DB::transaction
+// is prohibited (enforced by content-scanning in tests/Architecture/InvariantsTest.php).
 arch('controllers do not directly use DB facade')
     ->expect('App\Http\Controllers')
-    ->not->toUse(DB::class);
-
-arch('repositories do not directly use DB facade')
-    ->expect('App\Repositories')
-    ->not->toUse(DB::class);
+    ->not->toUse('Illuminate\Support\Facades\DB');
