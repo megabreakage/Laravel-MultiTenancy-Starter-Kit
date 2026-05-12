@@ -1,0 +1,63 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.5', tools: composer:v2 }
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer lint
+      - run: ./vendor/bin/rector --dry-run
+
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.5', tools: composer:v2 }
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer analyze
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testsecret
+          MYSQL_DATABASE: api_kit_test_central
+          MYSQL_USER: api_kit
+          MYSQL_PASSWORD: testsecret
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -ptestsecret"
+          --health-interval=5s --health-timeout=3s --health-retries=10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+      meilisearch:
+        image: getmeili/meilisearch:v1.10
+        env: { MEILI_NO_ANALYTICS: 'true' }
+        ports: ['7700:7700']
+    env:
+      DB_CENTRAL_HOST: 127.0.0.1
+      DB_TENANT_HOST: 127.0.0.1
+      REDIS_HOST: 127.0.0.1
+      MEILISEARCH_HOST: http://127.0.0.1:7700
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.5', tools: composer:v2 }
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer test:full
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.5', tools: composer:v2 }
+      - run: composer audit
