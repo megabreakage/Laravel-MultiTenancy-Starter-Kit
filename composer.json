@@ -53,7 +53,7 @@
         "test": "./vendor/bin/pest --parallel --processes=4",
         "test:seq": "./vendor/bin/pest",
         "test:full": "./vendor/bin/pest --parallel --exclude-group=serial && ./vendor/bin/pest --group=serial",
-        "analyze": "./vendor/bin/phpstan analyse --no-progress",
+        "analyze": "./vendor/bin/phpstan analyse --no-progress --memory-limit=512M",
         "lint": "./vendor/bin/pint --test",
         "fix": "./vendor/bin/pint",
         "check": "@lint && @analyze && @test:full"
