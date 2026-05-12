@@ -9,3 +9,4 @@ parameters:
         - routes
     level: max
     tmpDir: storage/framework/phpstan
+    treatPhpDocTypesAsCertain: false
