@@ -1,6 +1,7 @@
 .PHONY: setup up down restart shell logs test test-seq test-full lint analyze check fix tenant resource
 
 setup:
+	@test -f .env || cp .env.example .env
 	docker compose up -d
 	docker compose exec app composer install
 	docker compose exec app php artisan key:generate
