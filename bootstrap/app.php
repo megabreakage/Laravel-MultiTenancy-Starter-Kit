@@ -2,9 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\ApiException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,5 +21,43 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (ApiException $e, \Illuminate\Http\Request $request): JsonResponse {
+            return $e->render($request);
+        });
+
+        $exceptions->render(function (ValidationException $e, \Illuminate\Http\Request $request): ?JsonResponse {
+            if (! $request->expectsJson() && ! $request->is('api/*')) {
+                return null;
+            }
+
+            return new JsonResponse([
+                'error' => [
+                    'code' => 'VALIDATION_FAILED',
+                    'message' => $e->getMessage(),
+                    'details' => $e->errors(),
+                ],
+                'meta' => [
+                    'request_id' => $request->header('X-Request-Id', (string) Str::ulid()),
+                    'version' => $request->attributes->get('api_version', 'v1'),
+                ],
+            ], 422);
+        });
+
+        $exceptions->render(function (ModelNotFoundException $e, \Illuminate\Http\Request $request): ?JsonResponse {
+            if (! $request->expectsJson() && ! $request->is('api/*')) {
+                return null;
+            }
+
+            return new JsonResponse([
+                'error' => [
+                    'code' => 'RESOURCE_NOT_FOUND',
+                    'message' => 'Resource not found.',
+                    'details' => null,
+                ],
+                'meta' => [
+                    'request_id' => $request->header('X-Request-Id', (string) Str::ulid()),
+                    'version' => $request->attributes->get('api_version', 'v1'),
+                ],
+            ], 404);
+        });
     })->create();
