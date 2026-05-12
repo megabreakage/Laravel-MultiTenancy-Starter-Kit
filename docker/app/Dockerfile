@@ -8,7 +8,11 @@ FROM php:8.5-fpm-alpine AS runtime
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
         oniguruma-dev libzip-dev zlib-dev \
  && apk add --no-cache mysql-client bash \
- && docker-php-ext-install pdo_mysql opcache bcmath zip pcntl \
+ && docker-php-ext-install pdo_mysql \
+ && docker-php-ext-install opcache \
+ && docker-php-ext-install bcmath \
+ && docker-php-ext-install zip \
+ && docker-php-ext-install pcntl \
  && apk del .build-deps
 
 WORKDIR /var/www/html
