@@ -6,11 +6,13 @@ use Tests\TestCase;
 uses(TestCase::class)->in('Feature', 'Architecture');
 uses(TestCase::class)->in('Unit');
 
-expect()->extend('toBeStandardSuccessEnvelope', fn () => $this
-    ->toHaveKey('data')
-    ->toHaveKey('meta')
-    ->and($this->value['meta'])->toHaveKey('version')
-    ->toHaveKey('request_id'));
+expect()->extend('toBeStandardSuccessEnvelope', function () {
+    return $this
+        ->toHaveKey('data')
+        ->toHaveKey('meta')
+        ->and($this->value['meta'])->toHaveKey('version')
+        ->toHaveKey('request_id');
+});
 
 expect()->extend('toBeStandardErrorEnvelope', function (?string $code = null): object {
     $this->toHaveKey('error')->toHaveKey('meta');

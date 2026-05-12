@@ -22,4 +22,6 @@ return RectorConfig::configure()
     ])
     ->withSkip([
         __DIR__ . '/app/Models/Central',
+        // Pest extension closures must use function() for $this rebinding — not arrow functions
+        __DIR__ . '/tests/Pest.php',
     ]);
