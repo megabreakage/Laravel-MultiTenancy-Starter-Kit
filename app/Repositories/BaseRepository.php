@@ -32,9 +32,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function newQuery(): QueryBuilder
     {
         return QueryBuilder::for($this->model())
-            ->allowedFilters($this->allowedFilters())
-            ->allowedIncludes($this->allowedIncludes())
-            ->allowedSorts($this->allowedSorts())
+            ->allowedFilters(...$this->allowedFilters())
+            ->allowedIncludes(...$this->allowedIncludes())
+            ->allowedSorts(...$this->allowedSorts())
             ->defaultSort($this->defaultSort());
     }
 
