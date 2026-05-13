@@ -13,7 +13,7 @@ RUN apk add --no-cache \
  && apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         libzip-dev oniguruma-dev zlib-dev icu-dev \
- && docker-php-ext-install -j"$(nproc)" pdo_mysql bcmath zip pcntl mbstring intl opcache \
+ && docker-php-ext-install -j"$(nproc)" pdo_mysql bcmath zip pcntl mbstring intl \
  && pecl install redis \
  && docker-php-ext-enable redis opcache \
  && apk del .build-deps
