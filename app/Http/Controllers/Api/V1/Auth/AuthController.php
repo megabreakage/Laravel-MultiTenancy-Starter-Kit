@@ -18,9 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class AuthController extends BaseApiController
 {
-    public function register(Request $request, RegisterUserAction $action): JsonResponse
+    public function register(RegisterUserData $dto, RegisterUserAction $action): JsonResponse
     {
-        $dto = RegisterUserData::from($request->all());
         $user = $action->execute($dto);
 
         $token = $user->createToken('api-token')->accessToken;
@@ -32,10 +31,8 @@ final class AuthController extends BaseApiController
         ], Response::HTTP_CREATED);
     }
 
-    public function login(Request $request): JsonResponse
+    public function login(LoginData $dto): JsonResponse
     {
-        $dto = LoginData::from($request->all());
-
         if (! Auth::attempt(['email' => $dto->email, 'password' => $dto->password])) {
             throw new DomainException('Invalid credentials.');
         }

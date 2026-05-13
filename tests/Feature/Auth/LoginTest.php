@@ -17,11 +17,10 @@ it('issues a token on valid credentials', function () {
         ]);
     });
 
-    $response = $this->withHeaders(['Host' => 'auth-login-1.api.test'])
-        ->postJson('/v1/auth/login', [
-            'email' => 'user@example.com',
-            'password' => 'password123',
-        ]);
+    $response = $this->postJson('http://auth-login-1.api.test/v1/auth/login', [
+        'email' => 'user@example.com',
+        'password' => 'password123',
+    ]);
 
     expect($response->status())->toBe(200);
     expect($response->json('data'))->toHaveKeys(['token', 'token_type', 'user']);
@@ -34,11 +33,10 @@ it('rejects invalid credentials', function () {
         \App\Models\User::factory()->create(['email' => 'user@login-2.test']);
     });
 
-    $response = $this->withHeaders(['Host' => 'auth-login-2.api.test'])
-        ->postJson('/v1/auth/login', [
-            'email' => 'user@login-2.test',
-            'password' => 'wrong-password',
-        ]);
+    $response = $this->postJson('http://auth-login-2.api.test/v1/auth/login', [
+        'email' => 'user@login-2.test',
+        'password' => 'wrong-password',
+    ]);
 
     expect($response->status())->toBe(422);
 })->group('serial');

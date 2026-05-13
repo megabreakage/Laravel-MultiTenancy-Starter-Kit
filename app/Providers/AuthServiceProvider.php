@@ -21,6 +21,11 @@ class AuthServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Passport oauth_* tables live on the central DB. Override models to use
+        // central connection so they work in tenant context without looking in tenant DB.
+        Passport::useClientModel(\App\Models\Central\PassportClient::class);
+        Passport::useTokenModel(\App\Models\Central\PassportToken::class);
+
         Passport::tokenModel()::saving(function ($token): void {
             if (function_exists('tenant') && tenant() && empty($token->tenant_id)) {
                 $token->tenant_id = tenant()->id;

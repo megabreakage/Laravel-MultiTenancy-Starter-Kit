@@ -13,10 +13,8 @@ it('rejects a token issued for tenant A when used on tenant B', function () {
 
     $token = $this->issuePersonalAccessTokenFor($a, 'user@a.test');
 
-    $response = $this->withHeaders([
-        'Host' => 'beta.api.test',
-        'Authorization' => 'Bearer ' . $token,
-    ])->getJson('/v1/auth/me');
+    $response = $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+        ->getJson('http://beta.api.test/v1/auth/me');
 
     expect($response->status())->toBe(403);
     expect($response->json())->toBeStandardErrorEnvelope('TENANT_MISMATCH');
