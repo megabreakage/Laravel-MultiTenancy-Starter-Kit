@@ -5,9 +5,11 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-req=ext-pcntl --ignore-platform-req=ext-redis --ignore-platform-req=ext-intl
 
 FROM php:8.5-fpm-alpine AS runtime
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-        oniguruma-dev libzip-dev zlib-dev \
- && apk add --no-cache mysql-client bash libzip \
+# Install runtime libs first so they are marked as explicit packages and
+# survive the subsequent `apk del .build-deps` step.
+RUN apk add --no-cache mysql-client bash libzip oniguruma \
+ && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+        libzip-dev oniguruma-dev zlib-dev \
  && docker-php-ext-install pdo_mysql bcmath zip pcntl \
  && apk del .build-deps
 
