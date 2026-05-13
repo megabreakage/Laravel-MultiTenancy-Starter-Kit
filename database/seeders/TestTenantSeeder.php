@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class TestTenantSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $tenantDomain = tenant()?->domains?->first()?->domain ?? 'tenant.localhost';
+        $email = "admin@{$tenantDomain}";
+        $password = (string) env('TEST_TENANT_ADMIN_PASSWORD', 'password');
+
+        $admin = User::withoutEvents(function () use ($email, $password): User {
+            return User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'first_name' => 'Test',
+                    'last_name' => 'Admin',
+                    'username' => 'test_admin_' . Str::random(4),
+                    'email_verified_at' => now(),
+                    'password' => Hash::make($password),
+                    'is_active' => true,
+                    'country_code' => '+254',
+                ],
+            );
+        });
+
+        if (! $admin->hasRole('tenant-admin')) {
+            $admin->assignRole('tenant-admin');
+        }
+
+        if ($admin->wasRecentlyCreated) {
+            $this->command->info("Created test tenant admin: {$email}");
+        } else {
+            $this->command->line("Test tenant admin already exists: {$email}");
+        }
+    }
+}

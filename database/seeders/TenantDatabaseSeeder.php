@@ -6,14 +6,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class TenantDatabaseSeeder extends Seeder
 {
     public function run(): void
     {
         $this->call([
-            DefaultCentralRoleSeeder::class,
-            DefaultSuperAdminSeeder::class,
+            DefaultTenantRoleSeeder::class,
+            DefaultTenantAdminSeeder::class,
         ]);
     }
 }
-

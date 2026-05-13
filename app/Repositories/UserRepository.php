@@ -16,17 +16,17 @@ final class UserRepository extends BaseRepository implements UserRepositoryInter
 
     protected function allowedFilters(): array
     {
-        return ['name', 'email'];
+        return ['first_name', 'last_name', 'username', 'email', 'phone', 'is_active'];
     }
 
     protected function allowedIncludes(): array
     {
-        return [];
+        return ['roles'];
     }
 
     protected function allowedSorts(): array
     {
-        return ['name', 'email', 'created_at'];
+        return ['first_name', 'last_name', 'username', 'email', 'created_at', 'last_login_at'];
     }
 
     public function findByEmail(string $email): ?User

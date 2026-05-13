@@ -8,6 +8,7 @@ use Stancl\Tenancy\TenancyServiceProvider as StanclTenancyServiceProvider;
 
 return [
     AppServiceProvider::class,
+    Spatie\Permission\PermissionServiceProvider::class,
     StanclTenancyServiceProvider::class,
     TenancyServiceProvider::class,
 ];

@@ -67,6 +67,6 @@ return [
     ],
 
     'seeder_parameters' => [
-        '--class' => 'DatabaseSeeder',
+        '--class' => \Database\Seeders\TenantDatabaseSeeder::class,
     ],
 ];

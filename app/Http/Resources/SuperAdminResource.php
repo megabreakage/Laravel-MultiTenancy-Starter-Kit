@@ -6,13 +6,12 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 
-final class UserResource extends BaseApiResource
+final class SuperAdminResource extends BaseApiResource
 {
     protected function payload(Request $request): array
     {
         return [
             'identifier' => $this->resource->identifier,
-            'title' => $this->resource->title,
             'first_name' => $this->resource->first_name,
             'middle_name' => $this->resource->middle_name,
             'last_name' => $this->resource->last_name,
