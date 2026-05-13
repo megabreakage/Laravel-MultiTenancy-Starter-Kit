@@ -12,19 +12,35 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
 
-final class User extends BaseModel implements AuthenticatableContract, Auditable
+final class User extends BaseModel implements Auditable, AuthenticatableContract
 {
     use Authenticatable;
     use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use Notifiable;
 
     protected $fillable = [
-        'name',
+        'title',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'username',
         'email',
-        'password',
         'email_verified_at',
+        'country_id',
+        'country_code',
+        'phone',
+        'phone_verified_at',
+        'password',
+        'preferred_timezone',
+        'office_location',
+        'is_active',
+        'avatar',
+        'notes',
+        'last_login_at',
         'created_by',
         'updated_by',
     ];
