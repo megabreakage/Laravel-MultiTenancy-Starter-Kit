@@ -5,7 +5,8 @@
             "args": [
                 "artisan",
                 "boost:mcp"
-            ]
+            ],
+            "type": "stdio"
         },
         "context7": {
             "command": "npx",
@@ -16,15 +17,6 @@
                 "ctx7sk-7de72e2f-dcc7-482d-8ea6-5ad508040857"
             ],
             "type": "stdio"
-        },
-        "herd": {
-            "command": "php",
-            "args": [
-                "/Applications/Herd.app/Contents/Resources/herd-mcp.phar"
-            ],
-            "env": {
-                "SITE_PATH": "/Users/martinnjau/iOSync/Workspace/Mkenga/Apps/MatterMinerAPIs"
-            }
         }
     }
 }
