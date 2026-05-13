@@ -1,0 +1,671 @@
+{
+  "info": {
+    "_postman_id": "laravel-api-kit-v1",
+    "name": "Laravel API Kit",
+    "description": "Multi-tenant Laravel API Kit — central (api.localhost) and tenant domains. Auto-token management via collection variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "central_base_url",
+      "value": "http://api.localhost:8080/v1",
+      "type": "string"
+    },
+    {
+      "key": "tenant_base_url",
+      "value": "http://{{tenant_id}}.localhost:8080/v1",
+      "type": "string"
+    },
+    {
+      "key": "tenant_id",
+      "value": "acme",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "continent_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Success envelope', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{central_base_url}}/health",
+              "host": [
+                "{{central_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tenants (Central)",
+      "description": "Requires super_admin token. Target domain: api.localhost",
+      "item": [
+        {
+          "name": "Create Tenant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Success envelope', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body.data).to.have.property('id');",
+                  "    pm.expect(body.data).to.have.property('plan');",
+                  "    pm.collectionVariables.set('tenant_id', body.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"acme\",\n  \"plan\": \"pro\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{central_base_url}}/tenants",
+              "host": [
+                "{{central_base_url}}"
+              ],
+              "path": [
+                "tenants"
+              ]
+            },
+            "description": "Requires super_admin Bearer token. id: 2-63 chars, lowercase alphanumeric + hyphens. plan: free|pro|enterprise."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth (Tenant)",
+      "description": "Target domain: {{tenant_id}}.localhost. Register, login, logout, and current-user.",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Returns token', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body.data).to.have.property('token');",
+                  "    pm.expect(body.data).to.have.property('token_type', 'Bearer');",
+                  "    pm.expect(body.data).to.have.property('user');",
+                  "    pm.collectionVariables.set('token', body.data.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{tenant_base_url}}/auth/register",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns token', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body.data).to.have.property('token');",
+                  "    pm.expect(body.data).to.have.property('token_type', 'Bearer');",
+                  "    pm.expect(body.data).to.have.property('user');",
+                  "    pm.collectionVariables.set('token', body.data.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{tenant_base_url}}/auth/login",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Me (Current User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('User object present', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body.data).to.have.property('id');",
+                  "    pm.expect(body.data).to.have.property('email');",
+                  "    pm.expect(body.data).to.have.property('name');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tenant_base_url}}/auth/me",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Logged out message', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body.data.message).to.eql('Logged out successfully.');",
+                  "});",
+                  "pm.collectionVariables.set('token', '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tenant_base_url}}/auth/logout",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Continents (Tenant)",
+      "description": "CRUD for continents. Requires Bearer token (set after Login/Register).",
+      "item": [
+        {
+          "name": "List Continents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paginated envelope', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body).to.have.property('data').that.is.an('array');",
+                  "    pm.expect(body).to.have.property('meta');",
+                  "    pm.expect(body.meta).to.have.property('total');",
+                  "    if (body.data.length > 0) {",
+                  "        pm.collectionVariables.set('continent_id', body.data[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tenant_base_url}}/continents?page=1&per_page=15",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "continents"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "filter[name]",
+                  "value": "",
+                  "description": "Filter by name",
+                  "disabled": true
+                },
+                {
+                  "key": "filter[code]",
+                  "value": "",
+                  "description": "Filter by code (2-3 uppercase letters)",
+                  "disabled": true
+                },
+                {
+                  "key": "filter[is_active]",
+                  "value": "true",
+                  "description": "Filter by active status",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "name",
+                  "description": "Sort field (prefix - for desc, e.g. -name)",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Continent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Continent shape', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body.data).to.have.property('id');",
+                  "    pm.expect(body.data).to.have.property('name');",
+                  "    pm.expect(body.data).to.have.property('code');",
+                  "    pm.expect(body.data).to.have.property('is_active');",
+                  "    pm.expect(body.data).to.have.property('created_at');",
+                  "    pm.expect(body.data).to.have.property('updated_at');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tenant_base_url}}/continents/{{continent_id}}",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "continents",
+                "{{continent_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Continent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Continent created', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body.data).to.have.property('id');",
+                  "    pm.expect(body.data).to.have.property('name');",
+                  "    pm.expect(body.data).to.have.property('code');",
+                  "    pm.expect(body.data.is_active).to.be.a('boolean');",
+                  "    pm.collectionVariables.set('continent_id', body.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Africa\",\n  \"code\": \"AF\",\n  \"is_active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{tenant_base_url}}/continents",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "continents"
+              ]
+            },
+            "description": "name: 2-120 chars. code: 2-3 uppercase letters (regex /^[A-Z]{2,3}$/). is_active: boolean, default true."
+          }
+        },
+        {
+          "name": "Update Continent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Continent updated', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('success', true);",
+                  "    pm.expect(body.data).to.have.property('id');",
+                  "    pm.expect(body.data).to.have.property('name');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Africa (Updated)\",\n  \"code\": \"AF\",\n  \"is_active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{tenant_base_url}}/continents/{{continent_id}}",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "continents",
+                "{{continent_id}}"
+              ]
+            },
+            "description": "All fields are optional. identifier is taken from the URL path parameter."
+          }
+        },
+        {
+          "name": "Delete Continent (Soft)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));",
+                  "pm.test('Empty body', () => {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tenant_base_url}}/continents/{{continent_id}}",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "continents",
+                "{{continent_id}}"
+              ]
+            },
+            "description": "Soft-deletes the continent (uses SoftDeletes). Record remains in DB with deleted_at set."
+          }
+        },
+        {
+          "name": "Force Delete Continent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));",
+                  "pm.test('Empty body', () => {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});",
+                  "pm.collectionVariables.set('continent_id', '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tenant_base_url}}/continents/{{continent_id}}/force",
+              "host": [
+                "{{tenant_base_url}}"
+              ],
+              "path": [
+                "continents",
+                "{{continent_id}}",
+                "force"
+              ]
+            },
+            "description": "Permanently removes the record from the database. Irreversible."
+          }
+        }
+      ]
+    }
+  ]
+}
