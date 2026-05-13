@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Repositories\ContinentRepository;
+use App\Repositories\Contracts\ContinentRepositoryInterface;
 use App\Repositories\Contracts\TenantRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\TenantRepository;
@@ -16,5 +18,6 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(TenantRepositoryInterface::class, TenantRepository::class);
+        $this->app->bind(ContinentRepositoryInterface::class, ContinentRepository::class);
     }
 }
