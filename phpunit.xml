@@ -29,24 +29,24 @@
         </report>
     </coverage>
     <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="APP_KEY" value="base64:0000000000000000000000000000000000000000000="/>
-        <env name="DB_CONNECTION" value="central"/>
-        <env name="DB_CENTRAL_HOST" value="mysql-test"/>
-        <env name="DB_CENTRAL_PORT" value="3306"/>
+        <env name="APP_ENV" value="testing" force="true"/>
+        <env name="APP_KEY" value="base64:0000000000000000000000000000000000000000000=" force="true"/>
+        <env name="DB_CONNECTION" value="central" force="true"/>
+        <env name="DB_CENTRAL_HOST" value="mysql-test" force="true"/>
+        <env name="DB_CENTRAL_PORT" value="3306" force="true"/>
         <env name="DB_CENTRAL_DATABASE" value="api_kit_test_central"/>
-        <env name="DB_CENTRAL_USERNAME" value="api_kit"/>
-        <env name="DB_CENTRAL_PASSWORD" value="testsecret"/>
-        <env name="DB_TENANT_HOST" value="mysql-test"/>
-        <env name="DB_TENANT_USERNAME" value="api_kit"/>
-        <env name="DB_TENANT_PASSWORD" value="testsecret"/>
-        <env name="DB_TENANT_PREFIX" value="api_kit_test_tenant_"/>
-        <env name="CACHE_STORE" value="redis"/>
-        <env name="QUEUE_CONNECTION" value="sync"/>
-        <env name="REDIS_HOST" value="redis-test"/>
-        <env name="SESSION_DRIVER" value="array"/>
-        <env name="MAIL_MAILER" value="array"/>
-        <env name="SCOUT_DRIVER" value="null"/>
-        <env name="TENANCY_CENTRAL_DOMAINS" value="api.test"/>
+        <env name="DB_CENTRAL_USERNAME" value="api_kit" force="true"/>
+        <env name="DB_CENTRAL_PASSWORD" value="testsecret" force="true"/>
+        <env name="DB_TENANT_HOST" value="mysql-test" force="true"/>
+        <env name="DB_TENANT_USERNAME" value="api_kit" force="true"/>
+        <env name="DB_TENANT_PASSWORD" value="testsecret" force="true"/>
+        <env name="DB_TENANT_PREFIX" value="api_kit_test_tenant_" force="true"/>
+        <env name="CACHE_STORE" value="redis" force="true"/>
+        <env name="QUEUE_CONNECTION" value="sync" force="true"/>
+        <env name="REDIS_HOST" value="redis-test" force="true"/>
+        <env name="SESSION_DRIVER" value="array" force="true"/>
+        <env name="MAIL_MAILER" value="array" force="true"/>
+        <env name="SCOUT_DRIVER" value="null" force="true"/>
+        <env name="TENANCY_CENTRAL_DOMAINS" value="api.test" force="true"/>
     </php>
 </phpunit>

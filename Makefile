@@ -1,3 +1,18 @@
+TEST_ENV := \
+	-e DB_CENTRAL_HOST=mysql-test \
+	-e DB_CENTRAL_PASSWORD=testsecret \
+	-e DB_CENTRAL_USERNAME=api_kit \
+	-e DB_TENANT_HOST=mysql-test \
+	-e DB_TENANT_PASSWORD=testsecret \
+	-e DB_TENANT_USERNAME=api_kit \
+	-e DB_TENANT_PREFIX=api_kit_test_tenant_ \
+	-e REDIS_HOST=redis-test \
+	-e QUEUE_CONNECTION=sync \
+	-e SESSION_DRIVER=array \
+	-e MAIL_MAILER=array \
+	-e SCOUT_DRIVER=null \
+	-e TENANCY_CENTRAL_DOMAINS=api.test
+
 .PHONY: setup up down restart shell logs test test-seq test-full lint analyze check fix tenant resource
 
 setup:
@@ -24,13 +39,13 @@ logs:
 	docker compose logs -f app
 
 test:
-	docker compose exec app composer test
+	docker compose exec $(TEST_ENV) app composer test
 
 test-seq:
-	docker compose exec app composer test:seq
+	docker compose exec $(TEST_ENV) app composer test:seq
 
 test-full:
-	docker compose exec app composer test:full
+	docker compose exec $(TEST_ENV) app composer test:full
 
 lint:
 	docker compose exec app composer lint
