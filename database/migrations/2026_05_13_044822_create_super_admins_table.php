@@ -12,18 +12,33 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::connection('central')->create('super_admins', function (Blueprint $t) {
-            $t->bigIncrements('id');
-            $t->uuid('identifier')->unique();
-            $t->string('name');
-            $t->string('email')->unique();
-            $t->string('password');
-            $t->timestamp('email_verified_at')->nullable();
-            $t->rememberToken();
-            $t->unsignedBigInteger('created_by')->nullable();
-            $t->unsignedBigInteger('updated_by')->nullable();
-            $t->timestamps();
-            $t->softDeletes();
+        Schema::connection('central')->create('super_admins', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('identifier')->unique();
+            $table->string('first_name');
+            $table->string('middle_name')->nullable();
+            $table->string('last_name');
+            $table->string('username')->unique()->index();
+
+            $table->string('email')->unique()->index();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('country_code')->default('+254');
+            $table->string('phone')->nullable();
+            $table->timestamp('phone_verified_at')->nullable();
+            $table->string('password')->nullable();
+
+            $table->string('preferred_timezone')->nullable();
+            $table->string('office_location')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->string('avatar')->nullable();
+            $table->text('notes')->nullable();
+
+            $table->timestamp('last_login_at')->nullable();
+            $table->foreignId('created_by')->nullable()->constrained('users');
+            $table->foreignId('updated_by')->nullable()->constrained('users');
+            $table->rememberToken();
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
