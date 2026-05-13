@@ -13,6 +13,7 @@ class TenantDatabaseSeeder extends Seeder
         $this->call([
             DefaultTenantRoleSeeder::class,
             DefaultTenantAdminSeeder::class,
+            TestTenantSeeder::class,
         ]);
     }
 }
