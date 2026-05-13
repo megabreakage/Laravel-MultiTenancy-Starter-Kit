@@ -7,10 +7,15 @@ RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --opti
 FROM php:8.5-fpm-alpine AS runtime
 # Install runtime libs first so they are marked as explicit packages and
 # survive the subsequent `apk del .build-deps` step.
-RUN apk add --no-cache mysql-client bash libzip oniguruma \
- && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-        libzip-dev oniguruma-dev zlib-dev \
- && docker-php-ext-install pdo_mysql bcmath zip pcntl \
+RUN apk add --no-cache \
+        mysql-client bash \
+        libzip oniguruma icu-libs \
+ && apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS \
+        libzip-dev oniguruma-dev zlib-dev icu-dev \
+ && docker-php-ext-install -j"$(nproc)" pdo_mysql bcmath zip pcntl mbstring intl opcache \
+ && pecl install redis \
+ && docker-php-ext-enable redis opcache \
  && apk del .build-deps
 
 WORKDIR /var/www/html
