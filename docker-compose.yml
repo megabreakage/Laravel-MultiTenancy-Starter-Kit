@@ -50,6 +50,7 @@ services:
       MYSQL_PASSWORD: ${DB_CENTRAL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -prootsecret"]
       interval: 5s
@@ -76,7 +77,11 @@ services:
     ports:
       - "7700:7700"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:7700/health | grep -q 'available'"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:7700/health | grep -q 'available'",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10

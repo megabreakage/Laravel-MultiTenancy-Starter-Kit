@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Models\Central\Tenant;
 use Illuminate\Console\Command;
 
 final class FreshMigrateSeedCommand extends Command
@@ -34,6 +35,17 @@ final class FreshMigrateSeedCommand extends Command
 
         $this->components->info('Seeding central database...');
         $this->call('db:seed', ['--force' => true]);
+
+        if (app()->environment('local', 'staging')) {
+            $this->components->info('Creating test tenant...');
+            $tenant = Tenant::create([
+                'id'     => 'test-corp',
+                'plan'   => 'free',
+                'status' => 'active',
+            ]);
+            $tenant->domains()->create(['domain' => 'test-corp.localhost']);
+            $this->components->info('Test tenant created: test-corp (test-corp.localhost)');
+        }
 
         $this->components->info('Done.');
 

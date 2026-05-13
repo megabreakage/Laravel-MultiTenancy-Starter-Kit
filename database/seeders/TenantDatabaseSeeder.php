@@ -14,6 +14,7 @@ class TenantDatabaseSeeder extends Seeder
             DefaultTenantRoleSeeder::class,
             DefaultTenantAdminSeeder::class,
             TestTenantSeeder::class,
+            TenantWithUserSeeder::class,
         ]);
     }
 }
