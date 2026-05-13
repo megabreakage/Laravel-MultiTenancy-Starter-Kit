@@ -16,19 +16,19 @@ class DefaultCentralRoleSeeder extends Seeder
                 'name' => 'super-admin',
                 'display_name' => 'Super Admin',
                 'description' => 'Has access to all system features and settings',
-                'guard_name' => 'api',
+                'guard_name' => 'super_admin',
             ],
             [
                 'name' => 'admin',
                 'display_name' => 'Admin',
                 'description' => 'Can manage users, roles, and permissions',
-                'guard_name' => 'api',
+                'guard_name' => 'super_admin',
             ],
             [
                 'name' => 'user',
                 'display_name' => 'User',
                 'description' => 'Can access own data and perform basic operations',
-                'guard_name' => 'api',
+                'guard_name' => 'super_admin',
             ],
         ];
 

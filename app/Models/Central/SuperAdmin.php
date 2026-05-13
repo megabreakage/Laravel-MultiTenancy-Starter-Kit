@@ -19,7 +19,9 @@ final class SuperAdmin extends BaseModel implements Auditable, AuthenticatableCo
     use Authenticatable;
     use HasApiTokens;
     use HasFactory;
-    use HasRoles;
+    use HasRoles {
+        assignRole as traitAssignRole;
+    }
     use Notifiable;
 
     protected static function newFactory(): \Database\Factories\SuperAdminFactory
@@ -98,7 +100,7 @@ final class SuperAdmin extends BaseModel implements Auditable, AuthenticatableCo
             }
         }
 
-        return parent::assignRole(...$roles);
+        return $this->traitAssignRole(...$roles);
     }
 
     /**

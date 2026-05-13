@@ -27,7 +27,7 @@ final class FreshMigrateSeedCommand extends Command
         // Tenant DBs must be wiped before central is dropped — the tenants table
         // is needed to enumerate which databases to delete.
         $this->components->info('Dropping and recreating tenant databases...');
-        $this->call('tenants:migrate-fresh', ['--force' => true]);
+        $this->call('tenants:migrate-fresh');
 
         $this->components->info('Fresh migrating central database...');
         $this->call('migrate:fresh', ['--force' => true]);
