@@ -4,37 +4,33 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * Runs before RefreshDatabase and other trait setups — safe place to
+     * override DB connection config so migrations hit the right worker DB.
+     */
+    protected function defineEnvironment(Application $app): void
+    {
+        $token = (int) (getenv('TEST_TOKEN') ?: 1);
+
+        $app['config']->set('database.connections.central.database', "api_kit_test_central_w{$token}");
+        $app['config']->set('database.redis.default.database', 10 + $token);
+
+        $this->applyTenantTemplateConnection($app);
+
+        $app['config']->set('tenancy.bootstrappers', array_values(array_filter(
+            $app['config']->get('tenancy.bootstrappers', []),
+            fn ($b) => $b !== \Stancl\Tenancy\Bootstrappers\FilesystemTenancyBootstrapper::class,
+        )));
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
-
-        $token = (int) (getenv('TEST_TOKEN') ?: 1);
-
-        // Per-worker central DB for parallel test runs.
-        config()->set('database.connections.central.database', "api_kit_test_central_w{$token}");
-        config()->set('database.redis.default.database', 10 + $token);
-
-        // Stancl's DatabaseManager::purgeTenantConnection() calls unset() on
-        // database.connections.tenant whenever tenancy ends or switches tenants.
-        // DatabaseConfig::connection() then tries to read database.connections.tenant
-        // as the template to build the next tenant's connection — but it's already wiped.
-        // Fix: register a separate 'tenant_template' connection that Stancl won't touch,
-        // and point template_tenant_connection at it.
-        $this->registerTenantTemplateConnection();
-
-        // FilesystemTenancyBootstrapper changes storage_path() to a tenant-specific path
-        // when a tenant context is active. Passport lazily resolves its AuthorizationServer
-        // singleton, which may happen while the tenant storage path is active, causing
-        // it to look for oauth-private.key in the tenant directory (which doesn't exist).
-        // Fix: remove FilesystemTenancyBootstrapper from the bootstrappers list in tests.
-        config()->set('tenancy.bootstrappers', array_values(array_filter(
-            config('tenancy.bootstrappers', []),
-            fn ($b) => $b !== \Stancl\Tenancy\Bootstrappers\FilesystemTenancyBootstrapper::class,
-        )));
 
         $this->ensurePassportPersonalAccessClient();
     }
