@@ -7,9 +7,8 @@ RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --opti
 FROM php:8.5-fpm-alpine AS runtime
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
         oniguruma-dev libzip-dev zlib-dev \
- && apk add --no-cache mysql-client bash \
+ && apk add --no-cache mysql-client bash libzip \
  && docker-php-ext-install pdo_mysql bcmath zip pcntl \
- && docker-php-ext-enable opcache \
  && apk del .build-deps
 
 WORKDIR /var/www/html
