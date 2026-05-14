@@ -30,15 +30,15 @@ class TenantWithUserSeeder extends Seeder
         // Create a dev tenant-admin for testing / local development.
         $devUser = User::withoutEvents(function () use ($devEmail): User {
             return User::create([
-                'identifier'         => (string) Str::uuid(),
-                'first_name'         => 'Dev',
-                'last_name'          => 'User',
-                'username'           => 'dev_' . Str::random(6),
-                'email'              => $devEmail,
-                'email_verified_at'  => now(),
-                'password'           => Hash::make((string) env('TEST_TENANT_ADMIN_PASSWORD', 'password')),
-                'is_active'          => true,
-                'country_code'       => '+254',
+                'identifier' => (string) Str::uuid(),
+                'first_name' => 'Dev',
+                'last_name' => 'User',
+                'username' => 'dev_' . Str::random(6),
+                'email' => $devEmail,
+                'email_verified_at' => now(),
+                'password' => Hash::make((string) env('TEST_TENANT_ADMIN_PASSWORD', 'password')),
+                'is_active' => true,
+                'country_code' => '+254',
                 'preferred_timezone' => 'Africa/Nairobi',
             ]);
         });
