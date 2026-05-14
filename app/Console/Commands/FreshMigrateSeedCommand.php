@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Models\Central\Tenant;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 final class FreshMigrateSeedCommand extends Command
 {
@@ -25,10 +26,16 @@ final class FreshMigrateSeedCommand extends Command
             return self::SUCCESS;
         }
 
-        // Tenant DBs must be wiped before central is dropped — the tenants table
-        // is needed to enumerate which databases to delete.
-        $this->components->info('Dropping and recreating tenant databases...');
-        $this->call('tenants:migrate-fresh');
+        // Drop all tenant databases BEFORE wiping central — we need the tenants
+        // table to enumerate which databases to delete.
+        $this->components->info('Dropping tenant databases...');
+        $prefix = config('tenancy.database.prefix', 'tenant_');
+        $suffix = config('tenancy.database.suffix', '');
+        Tenant::all()->each(function (Tenant $tenant) use ($prefix, $suffix): void {
+            $dbName = $prefix . $tenant->getTenantKey() . $suffix;
+            DB::statement("DROP DATABASE IF EXISTS `{$dbName}`");
+            $this->line("  Dropped: {$dbName}");
+        });
 
         $this->components->info('Fresh migrating central database...');
         $this->call('migrate:fresh', ['--force' => true]);

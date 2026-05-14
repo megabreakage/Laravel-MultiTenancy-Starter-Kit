@@ -20,7 +20,7 @@ return [
     'database' => [
         'central_connection' => 'central',
 
-        'template_tenant_connection' => 'tenant',
+        'template_tenant_connection' => 'tenant_template',
 
         'prefix' => env('DB_TENANT_PREFIX', 'tenant_'),
         'suffix' => '',

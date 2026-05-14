@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class TenantWithUserSeeder extends Seeder
 {
@@ -29,28 +30,29 @@ class TenantWithUserSeeder extends Seeder
         // Create a dev tenant-admin for testing / local development.
         $devUser = User::withoutEvents(function () use ($devEmail): User {
             return User::create([
-                'first_name' => 'Dev',
-                'last_name' => 'User',
-                'username' => 'dev_' . Str::random(6),
-                'email' => $devEmail,
-                'email_verified_at' => now(),
-                'password' => Hash::make((string) env('TEST_TENANT_ADMIN_PASSWORD', 'password')),
-                'is_active' => true,
-                'country_code' => '+254',
+                'identifier'         => (string) Str::uuid(),
+                'first_name'         => 'Dev',
+                'last_name'          => 'User',
+                'username'           => 'dev_' . Str::random(6),
+                'email'              => $devEmail,
+                'email_verified_at'  => now(),
+                'password'           => Hash::make((string) env('TEST_TENANT_ADMIN_PASSWORD', 'password')),
+                'is_active'          => true,
+                'country_code'       => '+254',
                 'preferred_timezone' => 'Africa/Nairobi',
             ]);
         });
 
-        if (! $devUser->hasRole('tenant-admin')) {
-            $devUser->assignRole('tenant-admin');
+        if (! $devUser->hasRole('tenant-admin', 'api')) {
+            $devUser->assignRole(Role::findByName('tenant-admin', 'api'));
         }
 
         $this->command->info("Created dev tenant-admin: {$devEmail}");
 
         // Create additional regular users via factory.
         User::factory(self::REGULAR_USER_COUNT)->create()->each(function (User $user): void {
-            if (! $user->hasRole('user')) {
-                $user->assignRole('user');
+            if (! $user->hasRole('user', 'api')) {
+                $user->assignRole(Role::findByName('user', 'api'));
             }
         });
 

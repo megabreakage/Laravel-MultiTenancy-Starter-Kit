@@ -22,7 +22,7 @@ return [
             'engine'         => 'InnoDB',
         ],
 
-        'tenant' => [
+'tenant_template' => [
             'driver'         => 'mysql',
             'host'           => env('DB_TENANT_HOST', 'mysql'),
             'port'           => env('DB_TENANT_PORT', '3306'),

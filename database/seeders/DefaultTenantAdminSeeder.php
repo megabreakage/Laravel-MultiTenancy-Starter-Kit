@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class DefaultTenantAdminSeeder extends Seeder
 {
@@ -21,19 +22,20 @@ class DefaultTenantAdminSeeder extends Seeder
             return User::firstOrCreate(
                 ['email' => $email],
                 [
-                    'first_name' => 'Tenant',
-                    'last_name' => 'Admin',
-                    'username' => 'tenant_admin_' . Str::random(4),
-                    'email_verified_at' => now(),
-                    'password' => Hash::make($password),
-                    'is_active' => true,
-                    'country_code' => '+254',
+                    'identifier'         => (string) Str::uuid(),
+                    'first_name'         => 'Tenant',
+                    'last_name'          => 'Admin',
+                    'username'           => 'tenant_admin_' . Str::random(4),
+                    'email_verified_at'  => now(),
+                    'password'           => Hash::make($password),
+                    'is_active'          => true,
+                    'country_code'       => '+254',
                 ],
             );
         });
 
-        if (! $admin->hasRole('tenant-admin')) {
-            $admin->assignRole('tenant-admin');
+        if (! $admin->hasRole('tenant-admin', 'api')) {
+            $admin->assignRole(Role::findByName('tenant-admin', 'api'));
         }
 
         if ($admin->wasRecentlyCreated) {
